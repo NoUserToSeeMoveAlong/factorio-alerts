@@ -1,0 +1,7 @@
+{
+    "AUTHOR": "Asm",
+    "CONTACT_INFO": "",
+    "HOMEPAGE": "https://github.com/asmnh/factorio-alerts",
+    "FACTORIO_VERSION": "0.17",
+    "DESCRIPTION": "Adds configurable alert siren to be used with circuit network."
+}
