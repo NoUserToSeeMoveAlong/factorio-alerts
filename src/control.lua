@@ -5,15 +5,15 @@ local display_mode = "alerts-list-display-mode-icon-only"
 local show_percentage = false
 
 local REFRESH_RATE = 60
-
-function dbg(msg)
-    game.print(msg)
-end
+local COLUMNS_FOR_COMPACT_MODE = 4
 
 function format_guielement_name(prefix, surface, pos)
     return prefix .. surface.index .. '_' .. pos.x .. '_' .. pos.y
 end
 
+function starts_with(str, start)
+    return str:sub(1, #start) == start
+end
 
 function signalid_to_spritepath(signalid)
     local type = signalid.type
@@ -22,7 +22,6 @@ function signalid_to_spritepath(signalid)
 end
 
 function refresh_speakers()
-    dbg('Loading speaker list')
     -- clear current list
     for k,_ in pairs(global['speaker_cache']) do
         global['speaker_cache'][k] = nil
@@ -52,15 +51,19 @@ end
 
 function on_built(e)
     if(e.created_entity.type == 'programmable-speaker') then
-        dbg('Adding a speaker to the list')
         table.insert(global['speaker_cache'], e.created_entity)
+        for k,player in pairs(game.players) do
+            draw_gui(player)
+        end
     end
 end
 
 function on_destroyed(e)
     if e.entity.type == 'programmable-speaker' then
-        dbg('Removing speaker from the list')
         remove_speaker(e.entity)
+        for k,player in pairs(game.players) do
+            draw_gui(player)
+        end
     end
 end
 
@@ -92,12 +95,7 @@ function get_signal_value(signals, signalid)
     return value
 end
 
-function load_settings_for(player)
-    display_mode = settings.get_player_settings(player)['alerts-list-display-mode'].value
-    show_percentage = settings.get_player_settings(player)['alerts-list-show-percentage'].value
-end
-
-function left_column_for(tbl, speaker, circuit)
+function left_column_for(tbl, speaker, circuit, show_percentage)
     local elem_name = format_guielement_name('alerts_list_icons_', speaker.surface, speaker.position)
     local element = tbl[elem_name]
     if display_mode == 'alerts-list-display-mode-icon-only' or display_mode == 'alerts-list-display-mode-icon-and-text' then
@@ -117,16 +115,12 @@ function left_column_for(tbl, speaker, circuit)
             element.number = get_signal_value(speaker.get_merged_signals(), circuit.condition.first_signal)
         end
         element.tooltip = speaker.alert_parameters.alert_message
-    else
-        -- complex
-        if not element then
-            -- create element
-        end
+        -- TODO: else for complex icon (full condition?)
     end
     -- update element data
 end
 
-function right_column_for(tbl, speaker, circuit)
+function right_column_for(tbl, speaker, circuit, display_mode)
     if display_mode ~= 'alerts-list-display-mode-icon-only' then
         local elem_name = format_guielement_name('alerts_list_info_', speaker.surface, speaker.position)
         local element = tbl[elem_name]
@@ -137,7 +131,7 @@ function right_column_for(tbl, speaker, circuit)
     end
 end
 
-function fill_table_with_speakers(tbl, speakers)
+function fill_table_with_speakers(tbl, speakers, player)
     if not speakers then
         speakers = {}
     end
@@ -147,14 +141,19 @@ function fill_table_with_speakers(tbl, speakers)
         remove_list[v.name] = v
     end
 
+    local found_any = false
+    local display_mode = settings.get_player_settings(player)['alerts-list-display-mode'].value
+    local show_percentage = settings.get_player_settings(player)['alerts-list-show-percentage'].value
+
     for i, speaker in pairs(speakers) do
         -- here we do assume we always have a list of speakers that have global alert set
         if speaker['alert_parameters'] then
             local behavior = speaker.get_control_behavior()
             if behavior and behavior['circuit_condition'] then
                 if behavior.circuit_condition.fulfilled then
-                    left_column_for(tbl, speaker, behavior.circuit_condition)
-                    right_column_for(tbl, speaker, behavior.circuit_condition)
+                    found_any = true
+                    left_column_for(tbl, speaker, behavior.circuit_condition, show_percentage)
+                    right_column_for(tbl, speaker, behavior.circuit_condition, display_mode)
                     remove_list[format_guielement_name('alerts_list_icons_', speaker.surface, speaker.position)] = nil
                     remove_list[format_guielement_name('alerts_list_info_', speaker.surface, speaker.position)] = nil
                 end
@@ -162,8 +161,14 @@ function fill_table_with_speakers(tbl, speakers)
         end
     end
     for k,v in pairs(remove_list) do
-        dbg('Destroying old UI element')
         v.destroy()
+    end
+
+    if not found_any then
+        -- get rid of GUI if there's nothing to be shown
+        for k,player in pairs(game.players) do
+            player.gui.left['alerts_list_frame_main'].destroy()
+        end
     end
 end
 
@@ -171,10 +176,10 @@ function build_gui(player) -- return GUI
     if not player.gui.left['alerts_list_frame_main'] then
         -- TODO: make it transparent background?
         local gui = player.gui.left.add {type='frame', name = 'alerts_list_frame_main', direction = 'vertical'}
-        gui.add { type = 'label', name = 'alerts_list_label', caption = {'gui-alerts-list.label-caption'}, tooltip = 'tooltip-alerts-list.label-caption' }
+        gui.add { type = 'label', name = 'alerts_list_label', caption = {'gui-alerts-list.label-caption'}, tooltip = {'tooltip-alerts-list.label-caption'} }
         local columns = 2
         if settings.get_player_settings(player)['alerts-list-display-mode'].value == 'alerts-list-display-mode-icon-only' then
-            columns = 8
+            columns = COLUMNS_FOR_COMPACT_MODE
         end
         local tbl = gui.add { type = 'table', name = 'alerts_list_alert_table', column_count = columns }
         return gui
@@ -184,16 +189,14 @@ function build_gui(player) -- return GUI
 end
 
 -- builds GUI and fills it with current speakers data
-function draw_gui(player) 
+function draw_gui(player)
     local gui = build_gui(player)
     local tbl = gui.alerts_list_alert_table
-    fill_table_with_speakers(tbl, global['speaker_cache'])
+    fill_table_with_speakers(tbl, global['speaker_cache'], player)
 end
 
 function reload_settings(player)
     refresh_speakers()
-    -- reload settings, cache old values to know if we need to reload GUI
-    load_settings_for(player)
  
     if player.gui.left['alerts_list_frame_main'] then
         player.gui.left['alerts_list_frame_main'].destroy()
@@ -227,7 +230,7 @@ script.on_event(defines.events.on_player_joined_game, function(e)
         global['speaker_cache'] = {}
         refresh_speakers()
     end
-    local player = game.players[event.player_index]
+    local player = game.players[e.player_index]
     reload_settings(player)
 end)
 
@@ -240,6 +243,6 @@ script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_e
     on_built(e)
 end)
 
-script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_mined_entity}, function(e)
+script.on_event({defines.events.on_pre_player_mined_item, defines.events.on_robot_mined_entity, defines.events.on_entity_died}, function(e)
     on_destroyed(e)
 end)

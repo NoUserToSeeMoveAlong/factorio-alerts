@@ -4,5 +4,6 @@
     "HOMEPAGE": "https://github.com/asmnh/factorio-alerts",
     "FACTORIO_VERSION": "0.17",
     "TITLE": "Alerts list",
-    "DESCRIPTION": "Adds a persistent list for all the active alerts triggered through programmable speaker, while also displaying more info than default UI"
+    "DESCRIPTION": "Adds a persistent list for all the active alerts triggered through programmable speaker, while also displaying more info than default UI",
+    "LICENSE": "MIT"
 }
