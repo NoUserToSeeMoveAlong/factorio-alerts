@@ -150,7 +150,7 @@ function fill_table_with_speakers(tbl, speakers, player)
         if speaker['alert_parameters'] then
             local behavior = speaker.get_control_behavior()
             if behavior and behavior['circuit_condition'] then
-                if behavior.circuit_condition.fulfilled then
+                if behavior.circuit_condition.fulfilled and speaker.alert_parameters.icon_signal_id then
                     found_any = true
                     left_column_for(tbl, speaker, behavior.circuit_condition, show_percentage)
                     right_column_for(tbl, speaker, behavior.circuit_condition, display_mode)
