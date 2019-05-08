@@ -1,0 +1,1 @@
+{"name": "AlertsList", "version": "0.1.2", "title": "Programmable Speaker Alerts List", "author": "Asm", "contact": "", "homepage": "https://github.com/asmnh/factorio-alerts", "factorio_version": "0.17", "dependencies": ["base >= 0.17"], "license": "MIT", "description": ""}
