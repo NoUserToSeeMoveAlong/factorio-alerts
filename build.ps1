@@ -17,7 +17,7 @@ if(!(test-path $output)) {
 echo "Mod will be placed in ${output}"
 
 if($args.Contains("-zip")){
-    docker run --rm -it -v "${CURRENT_DIR}\src:/code" -v "${output}:/target" --env-file=settings.env -e BUILD_ZIP=1 asm_nh/factorio-modbuilder
+    docker run --rm -it -v "${CURRENT_DIR}\src:/code" -v "${output}:/target" --env-file=settings.env -e BUILD_ZIP=1 asmnh/factorio-modbuilder
 } else {
-    docker run --rm -it -v "${CURRENT_DIR}\src:/code" -v "${output}:/target" --env-file=settings.env asm_nh/factorio-modbuilder
+    docker run --rm -it -v "${CURRENT_DIR}\src:/code" -v "${output}:/target" --env-file=settings.env asmnh/factorio-modbuilder
 }
