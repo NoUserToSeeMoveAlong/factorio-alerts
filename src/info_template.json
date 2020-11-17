@@ -1,9 +1,9 @@
 {
-    "AUTHOR": "Asm",
+    "AUTHOR": "wHiZZaRt",
     "CONTACT_INFO": "",
-    "HOMEPAGE": "https://github.com/asmnh/factorio-alerts",
-    "FACTORIO_VERSION": "0.17",
-    "TITLE": "Programmable Speaker Alerts List",
+    "HOMEPAGE": "https://github.com/NoUserToSeeMoveAlong/factorio-alerts",
+    "FACTORIO_VERSION": "1.0",
+    "TITLE": "Programmable Speaker Alerts List 2",
     "DESCRIPTION": "Adds GUI for list of all currently active alerts triggered by programmable speakers.",
     "LICENSE": "MIT"
 }
