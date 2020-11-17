@@ -1,9 +1,12 @@
 {
-    "AUTHOR": "wHiZZaRt",
-    "CONTACT_INFO": "",
-    "HOMEPAGE": "https://github.com/NoUserToSeeMoveAlong/factorio-alerts",
-    "FACTORIO_VERSION": "1.0",
-    "TITLE": "Programmable Speaker Alerts List 2",
-    "DESCRIPTION": "Adds GUI for list of all currently active alerts triggered by programmable speakers.",
-    "LICENSE": "MIT"
+    "name": "AlertsList2", 
+    "version": "1.0.0", 
+    "title": "Programmable Speaker Alerts List 2", 
+    "author": "NoUserToSeeMoveAlong", 
+    "contact": "", 
+    "homepage": "https://github.com/NoUserToSeeMoveAlong/factorio-alerts/", 
+    "factorio_version": "1.0", 
+    "dependencies": ["base >= 0.17"], 
+    "license": "MIT", 
+    "description": ""
 }
