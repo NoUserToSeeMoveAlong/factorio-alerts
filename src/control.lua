@@ -23,37 +23,40 @@ function signalid_to_spritepath(signalid)
 end
 
 function refresh_speakers()
-    -- clear current list
-    for k,_ in pairs(global['speaker_cache']) do
-        global['speaker_cache'][k] = nil
-    end
+    if global['speaker_cache'] then
+		for k,_ in pairs(global['speaker_cache']) do
+			global['speaker_cache'][k] = nil
+		end
 
-    -- look through all speakers
-    for k,v in pairs(game.surfaces) do
-        for sid,speaker in pairs(v.find_entities_filtered{type='programmable-speaker'}) do
-            table.insert(global['speaker_cache'], speaker)
-        end
-    end
+		for k,v in pairs(game.surfaces) do
+			for sid,speaker in pairs(v.find_entities_filtered{type='programmable-speaker'}) do
+				table.insert(global['speaker_cache'], speaker)
+			end
+		end
+	end
 end
 
 function remove_speaker(speaker)
-    if not global['speaker_cache'] then
-        global['speaker_cache'] = {}
-    end
-    for k,v in pairs(global['speaker_cache']) do
-        if v == speaker then table.remove(global['speaker_cache'], k) end
-    end
+    if global['speaker_cache'] then
+		for k,v in pairs(global['speaker_cache']) do
+			if v == speaker then table.remove(global['speaker_cache'], k) end
+		end
+	end
 end
 
-function compare_signals(s1, s2)
-    
+function compare_signals(s1, s2)   
     return s1 == s2 or (s1 and s2 and s1.type == s2.type and s1.name == s2.name)
 end
 
 function on_built(e)
     if(e.created_entity.type == 'programmable-speaker') then
+		if not global['speaker_cache'] then
+			global['speaker_cache'] = {}
+		end	
+	
         table.insert(global['speaker_cache'], e.created_entity)
-        for k,player in pairs(game.players) do
+        
+		for k,player in pairs(game.players) do
             draw_gui(player)
         end
     end
@@ -180,7 +183,9 @@ function fill_table_with_speakers(tbl, speakers, player)
     if not found_any then
         -- get rid of GUI if there's nothing to be shown
         for k,player in pairs(game.players) do
-            player.gui.left['alerts_list_frame_main'].destroy()
+			if player.gui.left['alerts_list_frame_main'] then
+				player.gui.left['alerts_list_frame_main'].destroy()
+			end
         end
     end
 end
