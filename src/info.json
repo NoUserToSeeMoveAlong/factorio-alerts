@@ -1,6 +1,6 @@
 {
     "name": "AlertsList2", 
-    "version": "1.0.1", 
+    "version": "1.0.2", 
     "title": "Programmable Speaker Alerts List 2", 
     "author": "NoUserToSeeMoveAlong", 
     "contact": "", 
@@ -8,5 +8,5 @@
     "factorio_version": "1.0", 
     "dependencies": ["base >= 0.17"], 
     "license": "MIT", 
-    "description": ""
+    "description": "Adds GUI for list of all currently active alerts triggered by programmable speakers."
 }
