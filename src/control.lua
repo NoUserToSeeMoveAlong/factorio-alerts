@@ -262,8 +262,10 @@ script.on_event(defines.events.on_player_joined_game, function(e)
 end)
 
 script.on_event(defines.events.on_runtime_mod_setting_changed, function(e)
-    local player = game.players[e.player_index]
-    reload_settings(player)
+    if e.player_index ~= nil then
+        local player = game.players[e.player_index]
+        reload_settings(player)
+    end
 end)
 
 script.on_event({defines.events.on_built_entity, defines.events.on_robot_built_entity}, function(e)
